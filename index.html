@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Transahel.ng | E-Bike Booking</title>
+
+<style>
+:root{
+  --bg:#f5f5f5;
+  --card:#ffffff;
+  --text:#111;
+  --accent:#0a8f4d;
+}
+
+body.dark{
+  --bg:#121212;
+  --card:#1e1e1e;
+  --text:#f1f1f1;
+}
+
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+header{
+  background:var(--accent);
+  color:#fff;
+  padding:30px;
+  text-align:center;
+}
+
+header h1{
+  margin:0;
+  font-size:32px;
+}
+
+header p{
+  margin-top:8px;
+  font-size:16px;
+}
+
+.controls{
+  text-align:center;
+  padding:20px;
+}
+
+.controls button{
+  padding:10px 18px;
+  margin:6px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  background:#000;
+  color:#fff;
+  font-size:14px;
+}
+
+.container{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(340px,1fr));
+  gap:30px;
+  padding:40px;
+}
+
+.card{
+  background:var(--card);
+  border-radius:14px;
+  box-shadow:0 12px 28px rgba(0,0,0,.25);
+  overflow:hidden;
+  opacity:0;
+  transform:translateY(40px);
+  transition:0.6s;
+}
+
+.card.show{
+  opacity:1;
+  transform:translateY(0);
+}
+
+.card img{
+  width:100%;
+  height:230px;
+  object-fit:cover;
+}
+
+.card-content{
+  padding:20px;
+}
+
+.card-content h3{
+  margin-top:0;
+  color:var(--accent);
+}
+
+.specs{
+  font-size:14px;
+  line-height:1.8;
+}
+
+.price{
+  font-size:18px;
+  font-weight:bold;
+  margin:12px 0;
+}
+
+.actions{
+  display:flex;
+  gap:10px;
+}
+
+.actions a{
+  flex:1;
+  text-align:center;
+  padding:10px;
+  text-decoration:none;
+  border-radius:6px;
+  color:#fff;
+  font-size:14px;
+}
+
+.whatsapp{ background:#25D366; }
+.call{ background:#000; }
+
+label{
+  display:block;
+  font-size:13px;
+  color:#666;
+  margin-bottom:6px;
+  font-weight:600;
+}
+
+input,select,textarea{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #ddd;
+  background:#fff;
+  color:#111;
+  font-family:inherit;
+  font-size:14px;
+  margin-bottom:12px;
+  box-sizing:border-box;
+}
+
+textarea{
+  min-height:100px;
+  resize:vertical;
+}
+
+input:focus,select:focus,textarea:focus{
+  outline:none;
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(10,143,77,0.1);
+}
+
+.form-group{
+  margin-bottom:15px;
+}
+
+.form-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+}
+
+.btn-group{
+  display:flex;
+  gap:10px;
+  margin-top:15px;
+}
+
+.btn-primary{
+  padding:12px 20px;
+  border-radius:8px;
+  background:var(--accent);
+  color:#fff;
+  border:none;
+  cursor:pointer;
+  font-weight:600;
+  font-size:14px;
+  transition:background 0.3s;
+}
+
+.btn-primary:hover{
+  background:#087d42;
+}
+
+.btn-secondary{
+  padding:12px 20px;
+  border-radius:8px;
+  background:#f0f0f0;
+  color:#111;
+  border:1px solid #ddd;
+  cursor:pointer;
+  font-weight:600;
+  font-size:14px;
+  transition:background 0.3s;
+}
+
+.btn-secondary:hover{
+  background:#e0e0e0;
+}
+
+.booking-section{
+  background:#f9f9f9;
+  padding:30px;
+  border-radius:14px;
+  margin-top:40px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.08);
+}
+
+.booking-section h2{
+  color:var(--accent);
+  margin-top:0;
+}
+
+.form-status{
+  margin-top:12px;
+  padding:10px;
+  border-radius:6px;
+  font-size:13px;
+  display:none;
+}
+
+.form-status.show{
+  display:block;
+}
+
+.form-status.success{
+  background:#d4edda;
+  color:#155724;
+  border:1px solid #c3e6cb;
+}
+
+.form-status.error{
+  background:#f8d7da;
+  color:#721c24;
+  border:1px solid #f5c6cb;
+}
+
+.video-section{
+  background:#f9f9f9;
+  padding:30px;
+  border-radius:14px;
+  margin:40px 0;
+  box-shadow:0 6px 20px rgba(0,0,0,0.08);
+}
+
+.video-section h2{
+  color:var(--accent);
+  margin-top:0;
+}
+
+.video-container{
+  position:relative;
+  width:100%;
+  padding-bottom:56.25%;
+  height:0;
+  overflow:hidden;
+  border-radius:12px;
+}
+
+.video-container iframe{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  border:none;
+  border-radius:12px;
+}
+
+footer{
+  text-align:center;
+  padding:20px;
+  font-size:14px;
+  opacity:.7;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Transahel.ng</h1>
+  <p>E-Bike Sales & Booking Platform</p>
+</header>
+
+<div class="controls">
+  <button onclick="toggleTheme()">🌙 Toggle Theme</button>
+</div>
+
+<div class="container">
+
+  <!-- TYPE I -->
+  <div class="card">
+    <img src="https://via.placeholder.com/800x400?text=E-Bike+Type+I">
+    <div class="card-content">
+      <h3>Type I E-Bike</h3>
+      <div class="specs">
+        Battery Capacity: 2000W<br>
+        Top Speed: 85 km/h<br>
+        Coverage: 120 km (full charge)<br>
+        Battery Type: Gel Batteries<br>
+        Gear System: 3 Gears<br>
+        Speedometer: LED
+      </div>
+      <div class="price">₦1,850,000</div>
+      <div class="actions">
+        <a class="whatsapp" href="https://wa.me/2348035901765" target="_blank">WhatsApp</a>
+        <a class="call" href="tel:08035901765">Call</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- TYPE II -->
+  <div class="card">
+    <img src="https://via.placeholder.com/800x400?text=E-Bike+Type+II">
+    <div class="card-content">
+      <h3>Type II E-Bike</h3>
+      <div class="specs">
+        Battery Capacity: 1500W<br>
+        Top Speed: 75 km/h<br>
+        Coverage: 100 km (full charge)<br>
+        Battery Type: Gel Batteries<br>
+        Gear System: 3 Gears<br>
+        Speedometer: LED
+      </div>
+      <div class="price">₦1,750,000</div>
+      <div class="actions">
+        <a class="whatsapp" href="https://wa.me/2348035901765" target="_blank">WhatsApp</a>
+        <a class="call" href="tel:08035901765">Call</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- TYPE III -->
+  <div class="card">
+    <img src="https://via.placeholder.com/800x400?text=E-Bike+Type+III">
+    <div class="card-content">
+      <h3>Type III E-Bike</h3>
+      <div class="specs">
+        Battery Capacity: 1500W<br>
+        Top Speed: 65 km/h<br>
+        Coverage: 100 km (full charge)<br>
+        Battery Type: Gel Batteries<br>
+        Gear System: 3 Gears<br>
+        Speedometer: LED
+      </div>
+      <div class="price">₦1,300,000</div>
+      <div class="actions">
+        <a class="whatsapp" href="https://wa.me/2348035901765" target="_blank">WhatsApp</a>
+        <a class="call" href="tel:08035901765">Call</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="video-section">
+  <h2>🎬 E-Bike Demo Video</h2>
+  <p>Watch our e-bikes in action. See the features, performance, and why Transahel.ng is your best choice.</p>
+  
+  <div class="video-container">
+    <iframe 
+      src="https://www.youtube.com/embed/VIDEO_ID_HERE" 
+      title="Transahel E-Bike Demo"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+      allowfullscreen>
+    </iframe>
+  </div>
+  <p style="font-size:13px; color:#666; margin-top:12px;">Replace <code>VIDEO_ID_HERE</code> with your YouTube video ID to display your demo.</p>
+</div>
+
+<div class="booking-section">
+  <h2>📅 Book Your E-Bike</h2>
+  <p>Fill out the form below and we'll contact you via WhatsApp to confirm your booking.</p>
+  
+  <form id="bikeBookingForm">
+    <div class="form-group">
+      <label for="custName">Full Name</label>
+      <input id="custName" name="custName" type="text" required placeholder="Your full name">
+    </div>
+
+    <div class="form-group">
+      <label for="custEmail">Email Address</label>
+      <input id="custEmail" name="custEmail" type="email" required placeholder="you@example.com">
+    </div>
+
+    <div class="form-group">
+      <label for="custPhone">Phone Number</label>
+      <input id="custPhone" name="custPhone" type="tel" required placeholder="+234 801 234 5678">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="bookDate">Preferred Date</label>
+        <input id="bookDate" name="bookDate" type="date" required>
+      </div>
+      <div class="form-group">
+        <label for="bookTime">Preferred Time</label>
+        <input id="bookTime" name="bookTime" type="time" required>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="bikeType">E-Bike Type</label>
+      <select id="bikeType" name="bikeType" required>
+        <option value="">Select a bike type</option>
+        <option value="Type I">Type I E-Bike — ₦1,850,000</option>
+        <option value="Type II">Type II E-Bike — ₦1,750,000</option>
+        <option value="Type III">Type III E-Bike — ₦1,300,000</option>
+      </select>
+    </div>
+
+    <div class="form-group">    
+      <label for="custMessage">Additional Notes</label>
+      <textarea id="custMessage" name="custMessage" placeholder="Tell us more about your interest or any questions..."></textarea>
+    </div>
+
+    <div class="btn-group">
+      <button type="submit" class="btn-primary">📨 Send Booking Request</button>
+      <button type="button" id="saveFormLocal" class="btn-secondary">💾 Save Locally</button>
+    </div>
+
+    <div id="bookingStatus" class="form-status"></div>
+  </form>
+</div>
+
+<footer>
+  <p>&copy; 2024 Transahel.ng. All rights reserved.</p>
+</footer>
+
+<script>
+function toggleTheme() {
+  document.body.classList.toggle('dark');
+  localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+}
+
+// Load saved theme
+if (localStorage.getItem('theme') === 'dark') {
+  document.body.classList.add('dark');
+}
+
+// Animate cards on load
+window.addEventListener('load', () => {
+  const cards = document.querySelectorAll('.card');
+  cards.forEach((card, index) => {
+    setTimeout(() => {
+      card.classList.add('show');
+    }, index * 100);
+  });
+});
+
+// === BOOKING FORM FUNCTIONALITY ===
+const bookingForm = document.getElementById('bikeBookingForm');
+const statusEl = document.getElementById('bookingStatus');
+const BOOKING_KEY = 'transahel_bookings_v1';
+const PHONE = '2348035901765';
+
+function showStatus(message, type = 'success') {
+  statusEl.textContent = message;
+  statusEl.className = 'form-status show ' + type;
+  setTimeout(() => {
+    statusEl.classList.remove('show');
+  }, 4000);
+}
+
+function collectFormData() {
+  return {
+    name: document.getElementById('custName').value.trim(),
+    email: document.getElementById('custEmail').value.trim(),
+    phone: document.getElementById('custPhone').value.trim(),
+    date: document.getElementById('bookDate').value,
+    time: document.getElementById('bookTime').value,
+    bikeType: document.getElementById('bikeType').value,
+    message: document.getElementById('custMessage').value.trim(),
+    createdAt: new Date().toISOString()
+  };
+}
+
+function saveBookingLocal(data) {
+  try {
+    const bookings = JSON.parse(localStorage.getItem(BOOKING_KEY) || '[]');
+    bookings.unshift(data);
+    localStorage.setItem(BOOKING_KEY, JSON.stringify(bookings));
+  } catch (e) {
+    console.error('Error saving booking:', e);
+  }
+}
+
+document.getElementById('saveFormLocal').addEventListener('click', () => {
+  if (!bookingForm.checkValidity()) {
+    bookingForm.reportValidity();
+    showStatus('Please fill all required fields.', 'error');
+    return;
+  }
+  const data = collectFormData();
+  saveBookingLocal(data);
+  showStatus('✓ Booking saved locally!', 'success');
+  bookingForm.reset();
+});
+
+bookingForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  if (!bookingForm.checkValidity()) {
+    bookingForm.reportValidity();
+    showStatus('Please fill all required fields.', 'error');
+    return;
+  }
+
+  const data = collectFormData();
+  saveBookingLocal(data);
+
+  // Send WhatsApp message
+  const waMessage = encodeURIComponent(
+    `New E-Bike Booking\n\n` +
+    `Name: ${data.name}\n` +
+    `Email: ${data.email}\n` +
+    `Phone: ${data.phone}\n` +
+    `Bike Type: ${data.bikeType}\n` +
+    `Date: ${data.date}\n` +
+    `Time: ${data.time}\n` +
+    `Notes: ${data.message || 'None'}`
+  );
+
+  const waUrl = `https://wa.me/${PHONE}?text=${waMessage}`;
+  window.open(waUrl, '_blank');
+
+  showStatus('✓ Booking saved! Opening WhatsApp to confirm...', 'success');
+  bookingForm.reset();
+});
+</script>
+
+</body>
+</html>
