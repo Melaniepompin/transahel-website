@@ -279,6 +279,93 @@ footer{
   font-size:14px;
   opacity:.7;
 }
+
+/* Lightbox Styles */
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.3s;
+}
+.lightbox-img-wrap {
+  max-width: 90vw;
+  max-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  background: #111;
+  position: relative;
+}
+.lightbox-overlay img {
+  max-width: 100%;
+  max-height: 80vh;
+  border-radius: 12px;
+  transition: transform 0.4s cubic-bezier(.4,1.6,.6,1), opacity 0.3s;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.3);
+}
+.lightbox-close, .lightbox-fullscreen {
+  position: absolute;
+  top: 24px;
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  border: none;
+  font-size: 2rem;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  z-index: 2;
+  transition: background 0.2s;
+}
+.lightbox-close:hover, .lightbox-fullscreen:hover {
+  background: rgba(10,143,77,0.8);
+}
+.lightbox-close { right: 24px; }
+.lightbox-fullscreen { left: 24px; font-size: 1.5rem; width: 40px; height: 40px; }
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  border: none;
+  font-size: 2.5rem;
+  border-radius: 50%;
+  width: 54px;
+  height: 54px;
+  cursor: pointer;
+  z-index: 2;
+  transition: background 0.2s;
+}
+.lightbox-nav:hover {
+  background: var(--accent);
+}
+.lightbox-prev { left: 10vw; }
+.lightbox-next { right: 10vw; }
+@media (max-width: 600px) {
+  .lightbox-prev { left: 2vw; }
+  .lightbox-next { right: 2vw; }
+  .lightbox-close, .lightbox-fullscreen { top: 10px; right: 10px; left: auto; }
+}
+.lightbox-img-wrap.anim-next img {
+  transform: translateX(80vw) scale(0.9);
+  opacity: 0;
+}
+.lightbox-img-wrap.anim-prev img {
+  transform: translateX(-80vw) scale(0.9);
+  opacity: 0;
+}
+.lightbox-img-wrap.anim-in img {
+  transform: translateX(0) scale(1);
+  opacity: 1;
+}
 </style>
 </head>
 
@@ -318,7 +405,7 @@ footer{
 
   <!-- TYPE II -->
   <div class="card">
-    <img src="bike5.jpg">
+    <img src="bike4.jpeg">
     <div class="card-content">
       <h3>Type II E-Bike</h3>
       <div class="specs">
@@ -365,13 +452,32 @@ footer{
   <p>Watch our e-bikes in action. See the features, performance, and why Transahel.ng is your best choice.</p>
   
   <div class="video-container">
-    <iframe 
-      src="bikevid.mp4" 
-      title="Transahel E-Bike Demo"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-      allowfullscreen>
-    </iframe>
+      <div class="video-thumb" id="videoLightboxThumb" style="position:relative;cursor:pointer;">
+        <img src="video-thumb.jpg" alt="E-Bike Video Demo" style="width:100%;height:auto;display:block;border-radius:12px;object-fit:cover;">
+        <span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.6);border-radius:50%;padding:18px 22px;">
+          <svg width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="24" fill="#0a8f4d"/><polygon points="19,15 36,24 19,33" fill="#fff"/></svg>
+        </span>
+      </div>
+      <!-- The original iframe is still here for fallback/SEO, but hidden -->
+      <iframe 
+        src="bikevid.mp4" 
+        title="Transahel E-Bike Demo"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen style="display:none;">
+      </iframe>
   </div>
+</div>
+
+<!-- Lightbox Overlay for E-Bike Images -->
+<div id="lightbox" class="lightbox-overlay" style="display:none;">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close">&times;</button>
+  <button class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Previous">&#10094;</button>
+  <div class="lightbox-img-wrap">
+     <img id="lightboxImg" src="" alt="E-Bike Demo" style="display:none;" />
+     <video id="lightboxVideo" controls style="max-width:100%;max-height:80vh;display:none;border-radius:12px;background:#000;"></video>
+  </div>
+  <button class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Next">&#10095;</button>
+  <button class="lightbox-fullscreen" id="lightboxFullscreen" aria-label="Fullscreen">&#9974;</button>
 </div>
 
 <div class="booking-section">
@@ -533,7 +639,138 @@ bookingForm.addEventListener('submit', async (e) => {
   showStatus('✓ Booking saved! Opening WhatsApp to confirm...', 'success');
   bookingForm.reset();
 });
+
+// === LIGHTBOX FUNCTIONALITY (Images + Video) ===
+const galleryImgs = Array.from(document.querySelectorAll('.container .card img'));
+const videoThumb = document.getElementById('videoLightboxThumb');
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightboxImg');
+const lightboxVideo = document.getElementById('lightboxVideo');
+const lightboxClose = document.getElementById('lightboxClose');
+const lightboxPrev = document.getElementById('lightboxPrev');
+const lightboxNext = document.getElementById('lightboxNext');
+const lightboxFullscreen = document.getElementById('lightboxFullscreen');
+const lightboxImgWrap = document.querySelector('.lightbox-img-wrap');
+let currentIdx = 0;
+let animating = false;
+
+// Gallery: all images, then video as last item
+const galleryItems = [
+  ...galleryImgs.map(img => ({type: 'img', src: img.src})),
+  {type: 'video', src: 'bikevid.mp4'}
+];
+
+function showLightbox(idx, direction) {
+  if (animating) return;
+  currentIdx = (idx + galleryItems.length) % galleryItems.length;
+  const item = galleryItems[currentIdx];
+  // Animate out
+  if (direction === 'next') {
+    lightboxImgWrap.classList.remove('anim-in');
+    lightboxImgWrap.classList.add('anim-next');
+    animating = true;
+    setTimeout(() => {
+      setLightboxContent(item);
+      lightboxImgWrap.classList.remove('anim-next');
+      lightboxImgWrap.classList.add('anim-in');
+      animating = false;
+    }, 350);
+  } else if (direction === 'prev') {
+    lightboxImgWrap.classList.remove('anim-in');
+    lightboxImgWrap.classList.add('anim-prev');
+    animating = true;
+    setTimeout(() => {
+      setLightboxContent(item);
+      lightboxImgWrap.classList.remove('anim-prev');
+      lightboxImgWrap.classList.add('anim-in');
+      animating = false;
+    }, 350);
+  } else {
+    setLightboxContent(item);
+    lightboxImgWrap.classList.add('anim-in');
+  }
+  lightbox.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function setLightboxContent(item) {
+  if (item.type === 'img') {
+    lightboxImg.src = item.src;
+    lightboxImg.style.display = '';
+    lightboxVideo.pause();
+    lightboxVideo.style.display = 'none';
+  } else if (item.type === 'video') {
+    lightboxImg.style.display = 'none';
+    lightboxVideo.src = item.src;
+    lightboxVideo.style.display = '';
+    setTimeout(() => lightboxVideo.play(), 100);
+  }
+}
+
+function closeLightbox() {
+  lightbox.style.display = 'none';
+  document.body.style.overflow = '';
+  lightboxVideo.pause();
+}
+
+function nextImg() {
+  showLightbox(currentIdx + 1, 'next');
+}
+function prevImg() {
+  showLightbox(currentIdx - 1, 'prev');
+}
+
+galleryImgs.forEach((img, i) => {
+  img.style.cursor = 'zoom-in';
+  img.addEventListener('click', () => showLightbox(i));
+});
+if (videoThumb) {
+  videoThumb.style.cursor = 'pointer';
+  videoThumb.addEventListener('click', () => showLightbox(galleryItems.length - 1));
+}
+lightboxClose.addEventListener('click', closeLightbox);
+lightboxNext.addEventListener('click', nextImg);
+lightboxPrev.addEventListener('click', prevImg);
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+  if (lightbox.style.display === 'flex') {
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowRight') nextImg();
+    if (e.key === 'ArrowLeft') prevImg();
+    if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+  }
+});
+
+// Touch swipe support
+let startX = 0;
+lightboxImgWrap.addEventListener('touchstart', (e) => {
+  startX = e.touches[0].clientX;
+});
+lightboxImgWrap.addEventListener('touchend', (e) => {
+  const dx = e.changedTouches[0].clientX - startX;
+  if (Math.abs(dx) > 50) {
+    if (dx < 0) nextImg();
+    else prevImg();
+  }
+});
+
+// Fullscreen API
+function toggleFullscreen() {
+  const el = lightboxImgWrap;
+  if (!document.fullscreenElement) {
+    if (el.requestFullscreen) el.requestFullscreen();
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    else if (el.msRequestFullscreen) el.msRequestFullscreen();
+  } else {
+    if (document.exitFullscreen) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    else if (document.msExitFullscreen) document.msExitFullscreen();
+  }
+}
+lightboxFullscreen.addEventListener('click', toggleFullscreen);
 </script>
 
 </body>
 </html>
+
