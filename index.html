@@ -452,19 +452,7 @@ footer{
   <p>Watch our e-bikes in action. See the features, performance, and why Transahel.ng is your best choice.</p>
   
   <div class="video-container">
-      <div class="video-thumb" id="videoLightboxThumb" style="position:relative;cursor:pointer;">
-        <img src="video-thumb.jpg" alt="E-Bike Video Demo" style="width:100%;height:auto;display:block;border-radius:12px;object-fit:cover;">
-        <span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,0.6);border-radius:50%;padding:18px 22px;">
-          <svg width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="24" fill="#0a8f4d"/><polygon points="19,15 36,24 19,33" fill="#fff"/></svg>
-        </span>
-      </div>
-      <!-- The original iframe is still here for fallback/SEO, but hidden -->
-      <iframe 
-        src="bikevid.mp4" 
-        title="Transahel E-Bike Demo"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-        allowfullscreen style="display:none;">
-      </iframe>
+    <video id="mainVideo" src="bikevid.mp4" controls style="width:100%;height:auto;display:block;border-radius:12px;object-fit:cover;cursor:pointer;" title="E-Bike Demo Video"></video>
   </div>
 </div>
 
@@ -642,7 +630,7 @@ bookingForm.addEventListener('submit', async (e) => {
 
 // === LIGHTBOX FUNCTIONALITY (Images + Video) ===
 const galleryImgs = Array.from(document.querySelectorAll('.container .card img'));
-const videoThumb = document.getElementById('videoLightboxThumb');
+const mainVideo = document.getElementById('mainVideo');
 const lightbox = document.getElementById('lightbox');
 const lightboxImg = document.getElementById('lightboxImg');
 const lightboxVideo = document.getElementById('lightboxVideo');
@@ -657,7 +645,7 @@ let animating = false;
 // Gallery: all images, then video as last item
 const galleryItems = [
   ...galleryImgs.map(img => ({type: 'img', src: img.src})),
-  {type: 'video', src: 'bikevid.mp4'}
+  {type: 'video', src: mainVideo ? mainVideo.src : 'bikevid.mp4'}
 ];
 
 function showLightbox(idx, direction) {
@@ -724,9 +712,11 @@ galleryImgs.forEach((img, i) => {
   img.style.cursor = 'zoom-in';
   img.addEventListener('click', () => showLightbox(i));
 });
-if (videoThumb) {
-  videoThumb.style.cursor = 'pointer';
-  videoThumb.addEventListener('click', () => showLightbox(galleryItems.length - 1));
+if (mainVideo) {
+  mainVideo.addEventListener('click', (e) => {
+    e.preventDefault();
+    showLightbox(galleryItems.length - 1);
+  });
 }
 lightboxClose.addEventListener('click', closeLightbox);
 lightboxNext.addEventListener('click', nextImg);
